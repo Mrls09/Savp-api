@@ -11,3 +11,10 @@
         "roleId":2
     }
 }
+
+- JSON - Login 
+-url -> /api/auth
+{
+    "username":"samuel09",
+    "password":"12345"
+}
