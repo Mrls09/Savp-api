@@ -1,9 +1,15 @@
 const { query } = require("../../../utils/mysql")
 
 const findAll = async () => {
-    const sql = `SELECT * FROM Item`;
+    const sql = `
+        SELECT Item.id, Item.status, Item.estado, Producto.titulo, Producto.descripcion , Plataforma.plataforma
+        FROM Item
+        JOIN Producto ON Item.producto_fk = Producto.id
+        JOIN Plataforma ON Item.plataforma_fk = Plataforma.id
+    `;
     return await query(sql, []);
 }
+
 
 const findById = async(id) => {
     const sql = `SELECT * FROM Item WHERE id = ?`

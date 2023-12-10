@@ -4,7 +4,7 @@ const {findAll, findById, save, findAllByStatus, update, remove, changeStatus} =
 const getAll = async(req, res = Response) => {
     try {
         const plataformas = await findAll();
-        res.status(400).json(plataformas);
+        res.status(200).json(plataformas);
     } catch (error) {
         console.log(error);
         res.status(400).json({error});

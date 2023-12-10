@@ -7,7 +7,6 @@ const login = async(user) => {
     if(!username || !password) throw Error("Missing Fields");
     const sql = `SELECT * FROM User WHERE username=? AND status=1`;
     const exist = await query(sql, [username]);
-    console.log(exist)
     if(
         await validatePassword(password, exist[0].password)
     )

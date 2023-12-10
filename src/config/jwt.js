@@ -4,7 +4,7 @@ const {findById} = require('../modules/controller/rol/rol.gateway');
 
 const generateToken = (payload) => {
     const token = jwt.sign(payload, process.env.TOKEN_SECRET);
-    return {token: token}
+    return {token: token, role: payload.role, username: payload.username}
 }
 const auth = async(req, res , next) => {
     try {

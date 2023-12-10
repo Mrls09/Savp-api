@@ -76,7 +76,7 @@ itemRouter.get('/status/:status', getAllByStatus);
 itemRouter.post('/', insert);
 itemRouter.put('/:id', actualize);
 itemRouter.delete('/:id', eliminate);
-itemRouter.delete('/status/:id', statusChange);
+itemRouter.put('/status/:id', statusChange);
 
 module.exports = {
     itemRouter
