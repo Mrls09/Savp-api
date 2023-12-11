@@ -9,12 +9,27 @@ const findAll = async () => {
     `;
     return await query(sql, []);
 }
-
-
-const findById = async(id) => {
+const findById = async (id) => {
     const sql = `SELECT * FROM Item WHERE id = ?`
     return await query(sql, [id])
 };
+const findAllByProducto = async (productoId) => {
+    const sql = `SELECT
+    i.id,
+    p.titulo AS producto_titulo,
+    i.estado,
+    pla.plataforma AS plataforma
+FROM
+    Item i
+JOIN
+    Producto p ON i.producto_fk = p.id
+JOIN
+    Plataforma pla ON i.plataforma_fk = pla.id
+WHERE
+    i.producto_fk = ? AND i.status = true
+`
+    return await query(sql, [productoId]);
+}
 
 const findAllByStatus = async (status) => {
     const sql = `SELECT * FROM Items WHERE status = ?`;
@@ -57,7 +72,7 @@ const update = async (item, id) => {
         item.status,
         id
     ]);
-    return {...item, id: id};
+    return { ...item, id: id };
 }
 
 const remove = async (id) => {
@@ -71,15 +86,15 @@ const remove = async (id) => {
 const changeStatus = async (id) => {
     if (Number.isNaN(id)) throw Error("Missing Fields");
     if (!id) throw Error("Missing Fields");
-  
+
     const update = await findById(id);
-    if (!update) throw Error("Not found"); 
+    if (!update) throw Error("Not found");
     const newStatus = !update[0].status;
-  
+
     const sql = `UPDATE Item SET status = ? WHERE id = ?`;
     return await query(sql, [newStatus, id]);
 };
-  
+
 module.exports = {
     findAll,
     findById,
@@ -87,5 +102,6 @@ module.exports = {
     save,
     update,
     remove,
-    changeStatus
+    changeStatus,
+    findAllByProducto
 };

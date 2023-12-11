@@ -7,7 +7,13 @@ const findAll = async() => {
 const findAllByUser = async(idUser) => {
     if(Number.isNaN(idUser)) throw Error("Wrong type");
     if(!idUser) throw Error("Missing Fields");
-    const sql = `SELECT * FROM Renta WHERE user_fk = ?`;
+    const sql = `
+    SELECT R.*, I.*, P.titulo AS producto_titulo, P.imagen AS producto_imagen
+    FROM Renta R
+    JOIN Item I ON R.item_fk = I.id
+    JOIN Producto P ON I.producto_fk = P.id
+    WHERE R.user_fk = ?
+`;
     return await query(sql, [idUser]);
 }
 const findById = async(id) => {

@@ -1,5 +1,5 @@
 const {response, Router} = require('express');
-const {findAll, findById, findAllByStatus, save, update, remove, changeStatus} = require('./item.gateway');
+const {findAll, findById, findAllByStatus, save, update, remove, changeStatus,findAllByProducto} = require('./item.gateway');
 
 const getAll = async(req, res = Response) => {
     try {
@@ -15,6 +15,16 @@ const getById = async(req, res = Response) => {
         const {id} = req.params;
         const item = await findById(id);
         res.status(200).json(item);
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({error});
+    }
+}
+const getAllByProducto = async(req, res = Response) =>{
+    try {
+        const {productoId} = req.params;
+        const items = await findAllByProducto(productoId);
+        res.status(200).json(items);
     } catch (error) {
         console.log(error);
         res.status(400).json({error});
@@ -72,6 +82,7 @@ const itemRouter = Router();
 
 itemRouter.get('/', getAll);
 itemRouter.get('/:id', getById);
+itemRouter.get('/producto/:productoId', getAllByProducto);
 itemRouter.get('/status/:status', getAllByStatus);
 itemRouter.post('/', insert);
 itemRouter.put('/:id', actualize);
