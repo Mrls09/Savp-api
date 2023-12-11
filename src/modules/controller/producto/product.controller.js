@@ -22,8 +22,8 @@ const getById = async(req, res = Response) => {
 }
 const insert = async(req, res = Response) => {
     try {
-        const { titulo, descripcion} = req.body;
-        const producto = await save({titulo, descripcion});
+        const { titulo, descripcion, imagen} = req.body;
+        const producto = await save({titulo, descripcion, imagen});
         res.status(200).json(producto);
     } catch (error) {
         console.log(error)

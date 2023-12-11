@@ -2,7 +2,7 @@ const { query } = require("../../../utils/mysql")
 
 const findAll = async () => {
     const sql = `
-        SELECT Item.id, Item.status, Item.estado, Producto.titulo, Producto.descripcion , Plataforma.plataforma
+        SELECT Item.id, Item.status, Item.descripcion, Item.estado, Producto.titulo, Plataforma.plataforma
         FROM Item
         JOIN Producto ON Item.producto_fk = Producto.id
         JOIN Plataforma ON Item.plataforma_fk = Plataforma.id

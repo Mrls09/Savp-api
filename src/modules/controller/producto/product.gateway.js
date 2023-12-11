@@ -1,25 +1,52 @@
 const { query } = require('../../../utils/mysql');
+const fs = require('fs');
+const path = require('path');
 
-const findAll = async() => {
-    const sql = "SELECT * FROM Producto";
-    return await query(sql, []);
-}
+const findAll = async () => {
+    const sql = "SELECT id, titulo, descripcion, imagen FROM Producto";
+    const products = await query(sql, []);
+  
+    const productsWithFullURLs = products.map(product => ({
+      ...product,
+      imageUrl: `http://localhost:8080/uploads/${product.imagen}`,
+    }));
+  
+    return productsWithFullURLs;
+  };
+  
 
 const findById = async(id) => {
     const sql = `SELECT * FROM Producto WHERE id = ?`
     return await query(sql, [id])
 };
 
-const save = async(producto) => {
-    if(!producto.titulo || !producto.descripcion) throw Error("Missing Fileds");
+const save = async (producto) => {
+    if (!producto.titulo || !producto.descripcion || !producto.imagen) {
+        throw Error("Missing Fields");
+    }
 
-    const sql = `INSERT INTO Producto (titulo,descripcion) VALUES(?,?)`;
-    const { insertedId } = await query(sql, [
-        producto.titulo,
-        producto.descripcion
-    ]);
-    return {...producto, id: insertedId}
+    try {
+        const nameImg = `image_${producto.titulo}.png`;
+        const sql = `INSERT INTO Producto (titulo, descripcion, imagen) VALUES (?, ?, ?)`;
+        const { insertedId } = await query(sql, [
+            producto.titulo,
+            producto.descripcion,
+            nameImg,
+        ]);
+
+        // Guardar la imagen en la carpeta uploads
+        const base64Data = producto.imagen.replace(/^data:image\/\w+;base64,/, '');
+        const dataBuffer = Buffer.from(base64Data, 'base64');
+        const imagePath = path.join(__dirname, '../../../uploads', nameImg);
+
+        fs.writeFileSync(imagePath, dataBuffer);
+
+        return { ...producto, id: insertedId, imagePath };
+    } catch (error) {
+        throw error;
+    }
 };
+
 
 const update = async(producto, id) => {
     if(Number.isNaN(id)) throw Error("Wrong Type");
