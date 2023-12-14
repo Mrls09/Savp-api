@@ -26,19 +26,6 @@ const save = async (user) => {
     const hashPass = await hashPassword(user.password);
     const { insertId } = await query(sql, [user.username, hashPass, 1, user.roleId]);
   
-    // Obtener dinámicamente el ID del cajero por defecto
-    const cajeroSql = `SELECT id FROM User WHERE rol_fk = ? LIMIT 1`;
-    const cajeroResult = await query(cajeroSql, [user.roleId]);
-    const idCajeroPorDefecto = cajeroResult[0].id;
-  
-    // Insertar un registro en la tabla Carrito para el nuevo usuario
-    const carritoSql = `INSERT INTO Carrito (user_fk, item_fk, cantidad, fecha_agregado) VALUES (?, 0, 0, NOW())`;
-    await query(carritoSql, [insertId]);
-  
-    // Insertar un registro en la tabla Renta para el nuevo usuario
-    const rentaSql = `INSERT INTO Renta (user_fk, fecha, item_fk, cajero_id) VALUES (?, NOW(), 0, ?)`;
-    await query(rentaSql, [insertId, idCajeroPorDefecto]);
-  
     delete user.password;
     return { ...user, id: insertId };
   };
