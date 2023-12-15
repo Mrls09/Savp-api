@@ -35,6 +35,7 @@ const insert = async(req, res=Response)=>{
         const renta = await save({userId, itemId , cajeroId});
         res.status(200).json(renta);
     } catch (error) {
+        console.log(error)
         res.status(400).json({error});
     }
 }

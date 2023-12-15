@@ -1,9 +1,8 @@
 const { query } = require('../../../utils/mysql');
-const { save } = require('../user/user.gateway');
 const { response, Router } = require('express');
 
 const findAll = async () => {
-    const sql = "SELECT * FROM Personal";
+    const sql = "SELECT *, Personal.id as id FROM Personal JOIN user on user.id=personal.user_fk";
     return await query(sql, []);
 };
 
@@ -34,13 +33,8 @@ const findByUserId = async (userId) => {
 };
 
 const savePersonal = async (personal) => {
-    const { user } = personal;
-
-    if (!personal.name || !personal.birthday || !personal.address || !user.username || !user.password || !user.status || !user.roleId) {
-        throw Error("missing fields");
-    }
-
-    const guardado = await save(user);
+    console.log(personal)
+    
 
     const sql = `INSERT INTO Personal (name, birthday, address, status, user_fk) VALUES(?,?,?,?,?)`;
     const { insertedID } = await query(sql, [
@@ -48,8 +42,25 @@ const savePersonal = async (personal) => {
         personal.birthday,
         personal.address,
         1,
-        guardado.id,
+        personal.user_fk,
     ]);
+
+    return { ...personal, id: insertedID };
+};
+
+const updatePersonal = async (personal) => {
+    console.log(personal)
+    
+
+    const sql = `UPDATE personal SET name=?, birthday=?, address=? WHERE id=?`;
+    const { insertedID } = await query(sql, [
+        personal.name,
+        personal.birthday,
+        personal.address,
+        personal.id,
+    ]);
+    const sql2 = `UPDATE user SET username=?, rol_fk=? WHERE id=?`;
+    await query(sql2, [personal.username, personal.roleId, personal.user_id]);
 
     return { ...personal, id: insertedID };
 };
@@ -58,5 +69,6 @@ module.exports = {
     findAll,
     findById,
     savePersonal,
-    findByUserId
+    findByUserId,
+    updatePersonal
 };

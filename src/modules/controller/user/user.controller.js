@@ -1,5 +1,5 @@
 const {response, Router} = require('express');
-const {findAll, findById, save, update, remove} = require('./user.gateway');
+const {findAll, findById, save, update, remove, saveUserPersonal} = require('./user.gateway');
 
 const getAll = async(req, res = Response) => {
     try {
@@ -25,6 +25,18 @@ const insert = async(req, res=Response)=>{
         const user = await save({username, password, status, roleId});
         res.status(200).json(user);
     } catch (error) {
+        console.log(error);
+        res.status(400).json({error});
+    }
+}
+
+const insertUserPersonal = async(req, res=Response)=>{
+    try {
+        const {username, password, status, roleId, address, name, birthday} = req.body;
+        const user = await saveUserPersonal({username, password, status, roleId, address, name, birthday});
+        res.status(200).json(user);
+    } catch (error) {
+        console.log(error);
         res.status(400).json({error});
     }
 }
@@ -57,6 +69,7 @@ const actualize = async (req, res = Response) => {
 userRouter.get('/', getAll);
 userRouter.get('/:id', getById);
 userRouter.post('/', insert);
+userRouter.post('/insert/', insertUserPersonal);
 userRouter.put('/:id', actualize);
 userRouter.delete('/:id',eliminate);
 

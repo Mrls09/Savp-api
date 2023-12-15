@@ -7,7 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index.js"
   },
-  
   "author": "Ivan Samuel Mata Nieto",
   "license": "ISC",
   "dependencies": {
@@ -19,6 +18,7 @@
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",
+    "nodemailer": "^6.9.7",
     "nodemon": "^3.0.2"
   }
 }

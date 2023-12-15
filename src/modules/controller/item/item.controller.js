@@ -1,5 +1,5 @@
 const { response, Router } = require('express');
-const { findAll, findById, findAllByStatus, save, update, remove, changeStatus, findAllByProducto } = require('./item.gateway');
+const { findAll, findById, findAllByStatus, save, update, remove, changeStatus, findAllByProducto, changeStatusEntregado, findByEstado, changeStatusDevuelto } = require('./item.gateway');
 
 const getAll = async (req, res = Response) => {
     try {
@@ -10,6 +10,17 @@ const getAll = async (req, res = Response) => {
         res.status(400).json({ error });
     }
 }
+
+const getAllByEstado = async (req, res = Response) => {
+    try {
+        const items = await findByEstado();
+        res.status(200).json(items);
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ error });
+    }
+}
+
 const getById = async (req, res = Response) => {
     try {
         const { id } = req.params;
@@ -83,9 +94,30 @@ const statusChange = async (req, res = Response) => {
     }
 }
 
+const statusChangeEntregado = async (req, res = Response) => {
+    try {
+        const { id } = req.params;
+        const result = await changeStatusEntregado(id);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error });
+    }
+}
+
+const statusChangeDevuelto = async (req, res = Response) => {
+    try {
+        const { id } = req.params;
+        const result = await changeStatusDevuelto(id);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error });
+    }
+}
+
 const itemRouter = Router();
 
 itemRouter.get('/', getAll);
+itemRouter.get('/estado/', getAllByEstado);
 itemRouter.get('/:id', getById);
 itemRouter.get('/producto/:productoId', getAllByProducto);
 itemRouter.get('/status/:status', getAllByStatus);
@@ -93,6 +125,8 @@ itemRouter.post('/', insert);
 itemRouter.put('/:id', actualize);
 itemRouter.delete('/:id', eliminate);
 itemRouter.put('/status/:id', statusChange);
+itemRouter.put('/status_change/:id', statusChangeEntregado);
+itemRouter.put('/status_devuelto/:id', statusChangeDevuelto);
 
 module.exports = {
     itemRouter
