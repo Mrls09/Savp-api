@@ -65,10 +65,25 @@ const updatePersonal = async (personal) => {
     return { ...personal, id: insertedID };
 };
 
+const updateSolo = async (personal) => {
+    console.log(personal)
+    
+
+    const sql = `UPDATE personal SET name=?, birthday=?, address=? WHERE id=?`;
+    const { insertedID } = await query(sql, [
+        personal.name,
+        personal.birthday,
+        personal.address,
+        personal.user_fk,
+    ]);
+    return { ...personal, id: insertedID };
+};
+
 module.exports = {
     findAll,
     findById,
     savePersonal,
     findByUserId,
-    updatePersonal
+    updatePersonal,
+    updateSolo
 };

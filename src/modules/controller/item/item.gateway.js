@@ -126,6 +126,7 @@ const changeStatusProceso = async (id) => {
 
     const sql = `UPDATE Item SET estado = 2 WHERE id = ?`;
     await query(sql, [id]);
+    await changeStatus(id);
 
     return { ...update[0] };
 };

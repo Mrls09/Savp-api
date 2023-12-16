@@ -1,5 +1,5 @@
 const {response, Router} = require('express');
-const {findAll, findById, savePersonal,findByUserId, updatePersonal} = require('./personal.gateway');
+const {findAll, findById, savePersonal,findByUserId, updatePersonal, updateSolo} = require('./personal.gateway');
 const { auth, checkRoles } = require('../../../config/jwt');
 
 const getAll = async(req, res = Response) => {
@@ -43,6 +43,17 @@ const update = async(req, res=Response)=>{
     }
 }
 
+const actualizeSolo = async(req, res=Response)=>{
+    try {
+        console.log(req.body);
+        const personal = await updateSolo(req.body);
+        res.status(200).json(personal);
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({error});
+    }
+}
+
 const getByUserId = async(req, res=Response)=>{
     try {
         const {userId} = req.params;
@@ -61,6 +72,7 @@ personalRouter.get('/' ,getAll);
 personalRouter.get('/:id', getById);
 personalRouter.post('/', insert);
 personalRouter.put('/', update);
+personalRouter.put('/solo/', actualizeSolo);
 personalRouter.get('/findByUserId/:userId', getByUserId);
 
 module.exports = {

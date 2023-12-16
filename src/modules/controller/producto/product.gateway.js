@@ -8,7 +8,7 @@ const findAll = async () => {
 
         const productsWithFullURLs = products.map(product => ({
         ...product,
-        imageUrl: `http://192.168.100.66:8080/uploads/${product.imagen}`,
+        imageUrl: `http://192.168.137.168:8080/uploads/${product.imagen}`,
     }));
 
     return productsWithFullURLs;

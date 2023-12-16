@@ -1,10 +1,35 @@
 const { query } = require("../../../utils/mysql");
-const { sendEmail, sendEmailRenta } = require("../auth/emailServer");
+const { sendEmail, sendEmailRenta, sendEmailDevolucion } = require("../auth/emailServer");
 const { changeStatusProceso, findByIdItem } = require("../item/item.gateway");
 const { findByIdUser } = require("../user/user.gateway");
 
 const findAll = async () => {
     const sql = `SELECT * FROM Renta`;
+    return await query(sql, []);
+}
+
+const findAllDemora = async (id, username) => {
+    const sql = `SELECT pro.titulo as titulo FROM renta 
+    JOIN item on item.id=renta.item_fk
+    JOIN producto pro on item.producto_fk=pro.id
+    WHERE DATEDIFF(fecha_entrega, CURDATE()) = 7 AND user_fk=?`;
+    const response = await query(sql, [id]);
+    var productos = [];
+    await Promise.all(
+        productos = response.filter((item)=> item.titulo)
+    );
+    if (productos.length !== 0) {
+        await sendEmailDevolucion(username, productos);
+    }
+    return productos;
+}
+
+const findAllRentaLog = async () => {
+    const sql = `SELECT us.username as username, rel.fecha as fecha, rel.fecha_entrega as entrega, pro.titulo FROM rentalog rel 
+    JOIN user us on us.id=rel.user_fk
+    JOIN item on rel.item_fk=item.id
+    JOIN producto pro on pro.id=item.producto_fk
+    `;
     return await query(sql, []);
 }
 
@@ -38,27 +63,25 @@ const findById = async (id) => {
     const sql = `SELECT * FROM Renta WHERE id = ? `;
     return await query(sql, [id]);
 }
-const save = async (renta) => {
-    if (!renta.userId || !renta.itemId || !renta.cajeroId) throw Error("Missing fields");
-    if (!await findRentasUser(renta.userId)) throw Error("Renta activa");
-    const sql = `INSERT INTO Renta (user_fk, item_fk,fecha, cajero_id, fecha_entrega) VALUES(?,?,?,?,?)`;
-    const userData = await findByIdUser(renta.userId);
-    const itemData = await findByIdItem(renta.itemId);
-    const { username } = userData[0];
-    const { descripcion, titulo, item_desc, plataforma } = itemData[0];
-    console.log(userData, itemData, renta);
-    await changeStatusProceso(renta.itemId);
+const save = async (userId, renta) => {
+    console.log(userId, renta);
+    if (!userId) throw Error("Missing fields");
+    if (!await findRentasUser(userId)) throw Error("Renta activa");
     let fecha = new Date();
+    const sql = `INSERT INTO Renta (user_fk, item_fk,fecha, cajero_id, fecha_entrega) VALUES(?,?,?,?,?)`;
+    const articulosRentados = [];
+    var userData = await findByIdUser(userId);
+    var { username } = userData[0];
 
-    await sendEmailRenta(username, { descripcion, titulo, item_desc, plataforma });
-    const { insertedId } = await query(sql, [
-        renta.userId,
-        renta.itemId,
-        fecha,
-        renta.cajeroId,
-        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').reverse().join('-')
-    ]);
-    return { ...renta, id: insertedId };
+    await Promise.all(renta.map(async (itemId) => {
+        var itemData = await findByIdItem(itemId);
+        await changeStatusProceso(itemId);
+        await query(sql, [userId, itemId, fecha, 1, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).split('/').reverse().join('-')]);
+        articulosRentados.push(itemData[0]);
+    }));
+
+    await sendEmailRenta(username, articulosRentados);
+    return { userId, articulosRentados};
 }
 
 
@@ -74,5 +97,7 @@ module.exports = {
     findAllByUser,
     findById,
     save,
-    remove
+    remove,
+    findAllRentaLog,
+    findAllDemora
 };
